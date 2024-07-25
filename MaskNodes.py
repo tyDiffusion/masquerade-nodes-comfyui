@@ -931,7 +931,7 @@ class PasteByMask:
                 # Resize the image we're pasting if needed
                 resized_image = image_to_paste[i].unsqueeze(0)
                 if SH != height or SW != width:
-                    resized_image = torch.nn.functional.interpolate(resized_image.permute(0, 3, 1, 2), size=(height,width), mode='bicubic').permute(0, 2, 3, 1)
+                    resized_image = torch.nn.functional.interpolate(resized_image.permute(0, 3, 1, 2), size=(height,width), mode='bicubic', antialias=True).permute(0, 2, 3, 1)
 
                 pasting = torch.ones([H, W, C])
                 ymid = float(mid_y[i].item())
