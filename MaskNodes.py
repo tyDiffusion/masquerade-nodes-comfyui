@@ -175,6 +175,14 @@ class ClipSegNode:
             mask_max = torch.max(mask)
             mask_range = mask_max - mask_min
             mask = (mask - mask_min) / mask_range
+
+        if torch.max(mask) < precision: #empty mask...which will generate errors later...so fill with some corner pixels            
+            print ("Mask By Text error: mask is empty")
+            mask = torch.zeros(1, W, H)
+            for y in range(8):
+                for x in range(8):
+                    mask[0][x][y] = 1
+                    
         thresholded = torch.where(mask >= precision, 1., 0.)
         # import code
         # code.interact(local=locals())
