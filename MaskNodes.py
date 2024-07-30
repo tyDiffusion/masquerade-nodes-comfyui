@@ -641,16 +641,19 @@ class MaskToRegion:
             target_width[torch.gt(target_width % constraint_x, 0)] = (target_width // constraint_x + 1) * constraint_x
             target_height[torch.gt(target_height % constraint_y, 0)] = (target_height // constraint_y + 1) * constraint_y
 
-        if batch_behavior == "match_size":
-            target_width[:] = torch.max(target_width)
-            target_height[:] = torch.max(target_height)
-        elif batch_behavior == "match_ratio":
-            # We'll target the ratio that's closest to 1:1, but don't want to take into account empty masks
-            ratios = torch.abs(target_width / target_height - 1)
-            ratios[is_empty] = 10000
-            match_ratio = torch.min(ratios,dim=0).indices.item()
-            target_width = torch.max(target_width, target_height * target_width[match_ratio] // target_height[match_ratio])
-            target_height = torch.max(target_height, target_width * target_height[match_ratio] // target_width[match_ratio])
+        try:
+            if batch_behavior == "match_size":
+                target_width[:] = torch.max(target_width)
+                target_height[:] = torch.max(target_height)
+            elif batch_behavior == "match_ratio":
+                # We'll target the ratio that's closest to 1:1, but don't want to take into account empty masks
+                ratios = torch.abs(target_width / target_height - 1)
+                ratios[is_empty] = 10000
+                match_ratio = torch.min(ratios,dim=0).indices.item()
+                target_width = torch.max(target_width, target_height * target_width[match_ratio] // target_height[match_ratio])
+                target_height = torch.max(target_height, target_width * target_height[match_ratio] // target_width[match_ratio])
+        except:
+            raise Exception("tyDiffusion error: inpainting mask is empty. If you're using a detailer, make sure the mask contains white pixels and that the mask 'erode' setting is not too high.") 
 
         missing = target_width - width
         min_x = min_x - missing // 2
