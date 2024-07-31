@@ -8,6 +8,7 @@ import torchvision.transforms.functional as TF
 import torch.nn.functional as torchfn
 import subprocess
 import sys
+import comfy
 
 DELIMITER = '|'
 cached_clipseg_model = None
@@ -136,7 +137,9 @@ class ClipSegNode:
     CATEGORY = "Masquerade Nodes"
 
     def get_mask(self, image, prompt, negative_prompt, precision, normalize):
-
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         model = self.load_model()
         image = tensor2rgb(image)
         B, H, W, _ = image.shape
@@ -242,6 +245,9 @@ class MaskMorphologyNode:
     CATEGORY = "Masquerade Nodes"
 
     def morph(self, image, distance, op):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         image = tensor2mask(image)
         if op == "dilate":
             image = self.dilate(image, distance)
@@ -548,6 +554,9 @@ class CreateRectMask:
     CATEGORY = "Masquerade Nodes"
 
     def create_mask(self, mode, origin, x, y, width, height, image_width, image_height, copy_image_size = None):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         min_x = x
         min_y = y
 
@@ -600,6 +609,9 @@ class MaskToRegion:
     CATEGORY = "Masquerade Nodes"
 
     def get_region(self, mask, padding, constraints, constraint_x, constraint_y, min_width, min_height, batch_behavior):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         mask = tensor2mask(mask)
         mask_size = mask.size()
         mask_width = int(mask_size[2])
@@ -717,6 +729,9 @@ class CutByMask:
     CATEGORY = "Masquerade Nodes"
 
     def cut(self, image, mask, force_resize_width, force_resize_height, mask_mapping_optional = None):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         if len(image.shape) < 4:
             C = 1
         else:
@@ -807,6 +822,9 @@ class SeparateMaskComponents:
     CATEGORY = "Masquerade Nodes"
 
     def separate(self, mask):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         mask = tensor2mask(mask)
 
         thresholded = torch.gt(mask,0).unsqueeze(1)
@@ -866,6 +884,9 @@ class PasteByMask:
     CATEGORY = "Masquerade Nodes"
 
     def paste(self, image_base, image_to_paste, mask, resize_behavior, mask_mapping_optional = None):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         image_base = tensor2rgba(image_base)
         image_to_paste = tensor2rgba(image_to_paste)
         mask = tensor2mask(mask)
@@ -1025,6 +1046,9 @@ class ChangeChannelCount:
     CATEGORY = "Masquerade Nodes"
 
     def change_channels(self, image, kind):
+        pbar = comfy.utils.ProgressBar(1)
+        pbar.update(1)
+        
         image_size = image.size()
 
         if kind == "mask":
